@@ -1,0 +1,103 @@
+/* Industrial SCADA UI Animations */
+
+@keyframes heartbeat-normal {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 230, 118, 0.25); }
+}
+
+@keyframes heartbeat-warning {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 202, 40, 0); opacity: 1; }
+  50% { box-shadow: 0 0 0 8px rgba(255, 202, 40, 0.35); opacity: 0.85; }
+}
+
+@keyframes heartbeat-error {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); opacity: 1; }
+  25%, 75% { opacity: 0.4; }
+  50% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0.4); opacity: 1; }
+}
+
+@keyframes heartbeat-lost {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(300%); }
+}
+
+@keyframes data-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes counter-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4)); }
+  50% { filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.9)); }
+}
+
+@keyframes node-warning-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 202, 40, 0.3)); }
+  50% { filter: drop-shadow(0 0 14px rgba(255, 202, 40, 0.9)); }
+}
+
+@keyframes node-error-glow {
+  0%, 50%, 100% { filter: drop-shadow(0 0 6px rgba(255, 23, 68, 0.5)); }
+  25%, 75% { filter: drop-shadow(0 0 16px rgba(255, 23, 68, 1)); }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes alert-slide-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes noise {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.07; }
+}
+
+.node-normal { animation: heartbeat-normal 2s ease-in-out infinite; }
+.node-warning { animation: heartbeat-warning 1.2s ease-in-out infinite; }
+.node-error { animation: heartbeat-error 0.7s ease-in-out infinite; }
+.node-lost { animation: heartbeat-lost 0.5s ease-in-out infinite; }
+
+.svg-glow-cyan { animation: glow-pulse 2.5s ease-in-out infinite; }
+.svg-glow-warning { animation: node-warning-glow 1.2s ease-in-out infinite; }
+.svg-glow-error { animation: node-error-glow 0.7s ease-in-out infinite; }
+
+.camera-feed-scanline {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+}
+
+.camera-feed-sweep {
+  position: absolute;
+  left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 212, 255, 0.04) 50%, transparent 100%);
+  animation: scan-line 5s linear infinite;
+  pointer-events: none;
+}
