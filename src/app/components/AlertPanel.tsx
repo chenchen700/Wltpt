@@ -24,29 +24,42 @@ const LEVEL_STYLE: Record<AlertLevel, { color: string; bg: string; border: strin
   INFO:     { color: '#7b9bc0', bg: 'rgba(123,155,192,0.06)', border: 'rgba(123,155,192,0.3)', label: '信息' },
 };
 
-const LEVEL_ICON: Record<AlertLevel, string> = {
-  CRITICAL: '⛔',
-  HIGH:     '🔴',
-  MEDIUM:   '⚠',
-  LOW:      '◉',
-  INFO:     '●',
-};
+// Only two filter tabs: 告警 (non-INFO) and 信息 (INFO)
+type AlertFilter = 'ALERT' | 'INFO';
 
 export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
-  const [filter, setFilter] = useState<AlertLevel | 'ALL'>('ALL');
+  const [filter, setFilter] = useState<AlertFilter>('ALERT');
   const [expanded, setExpanded] = useState(false);
 
-  const filtered = filter === 'ALL' ? alerts : alerts.filter(a => a.level === filter);
+  const alertCount = alerts.filter(a => a.level !== 'INFO').length;
+  const infoCount  = alerts.filter(a => a.level === 'INFO').length;
 
-  const counts: Record<AlertLevel, number> = {
-    CRITICAL: alerts.filter(a => a.level === 'CRITICAL').length,
-    HIGH: alerts.filter(a => a.level === 'HIGH').length,
-    MEDIUM: alerts.filter(a => a.level === 'MEDIUM').length,
-    LOW: alerts.filter(a => a.level === 'LOW').length,
-    INFO: alerts.filter(a => a.level === 'INFO').length,
-  };
+  const filtered = filter === 'ALERT'
+    ? alerts.filter(a => a.level !== 'INFO')
+    : alerts.filter(a => a.level === 'INFO');
+
+  const criticalCount = alerts.filter(a => a.level === 'CRITICAL').length;
 
   const panelH = expanded ? 220 : 120;
+
+  const TAB_DEFS: Array<{ key: AlertFilter; label: string; count: number; color: string; bg: string; border: string }> = [
+    {
+      key: 'ALERT',
+      label: '告警',
+      count: alertCount,
+      color: '#ff1744',
+      bg: 'rgba(255,23,68,0.12)',
+      border: 'rgba(255,23,68,0.5)',
+    },
+    {
+      key: 'INFO',
+      label: '信息',
+      count: infoCount,
+      color: '#7b9bc0',
+      bg: 'rgba(123,155,192,0.08)',
+      border: 'rgba(123,155,192,0.35)',
+    },
+  ];
 
   return (
     <div style={{
@@ -72,7 +85,7 @@ export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
       }}>
         {/* Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {counts.CRITICAL > 0 && (
+          {criticalCount > 0 && (
             <div style={{
               width: 7, height: 7, borderRadius: '50%',
               background: '#ff1744',
@@ -87,41 +100,41 @@ export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
           </span>
         </div>
 
-        {/* Level filter buttons */}
+        {/* Tab filter buttons: only 告警 and 信息 */}
         <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
-          {(['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'] as const).map(level => {
-            const style = level === 'ALL' ? { color: '#00d4ff', bg: 'rgba(0,212,255,0.08)', border: 'rgba(0,212,255,0.3)' } : LEVEL_STYLE[level];
-            const cnt = level === 'ALL' ? alerts.length : counts[level];
-            const isActive = filter === level;
+          {TAB_DEFS.map(tab => {
+            const isActive = filter === tab.key;
             return (
-              <button key={level}
-                onClick={() => setFilter(level)}
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
                 style={{
-                  padding: '1px 7px',
+                  padding: '1px 10px',
                   borderRadius: 3,
-                  border: `1px solid ${isActive ? (style as any).border || style.border : '#1a3a5c'}`,
-                  background: isActive ? (style as any).bg || style.bg : 'transparent',
-                  color: isActive ? (style as any).color || style.color : '#4a7fa5',
-                  fontSize: 9,
+                  border: `1px solid ${isActive ? tab.border : '#1a3a5c'}`,
+                  background: isActive ? tab.bg : 'transparent',
+                  color: isActive ? tab.color : '#4a7fa5',
+                  fontSize: 9.5,
                   cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 4,
+                  display: 'flex', alignItems: 'center', gap: 5,
                   fontFamily: "'Rajdhani', sans-serif",
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.8,
                   transition: 'all 0.12s',
-                }}>
-                {level === 'ALL' ? '全部' : (LEVEL_STYLE[level].label)}
-                {cnt > 0 && (
+                }}
+              >
+                {tab.label}
+                {tab.count > 0 && (
                   <span style={{
-                    background: isActive ? ((style as any).color || style.color) : '#1a3a5c',
+                    background: isActive ? tab.color : '#1a3a5c',
                     color: isActive ? '#040c18' : '#4a7fa5',
                     borderRadius: 2,
-                    padding: '0 3px',
+                    padding: '0 4px',
                     fontSize: 8,
                     fontFamily: "'Share Tech Mono', monospace",
                     minWidth: 14,
                     textAlign: 'center',
                   }}>
-                    {cnt}
+                    {tab.count}
                   </span>
                 )}
               </button>
@@ -131,14 +144,14 @@ export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
 
         <div style={{ flex: 1 }} />
 
-        {/* Stats pills */}
+        {/* Stats */}
         <div style={{ display: 'flex', gap: 8 }}>
-          {counts.CRITICAL > 0 && (
+          {criticalCount > 0 && (
             <span style={{
               color: '#ff1744', fontSize: 9, fontFamily: "'Share Tech Mono', monospace",
               animation: 'data-blink 1s infinite',
             }}>
-              ⚡ {counts.CRITICAL} CRITICAL
+              ⚡ {criticalCount} CRITICAL
             </span>
           )}
           <span style={{ color: '#4a7fa5', fontSize: 9, fontFamily: "'Share Tech Mono', monospace" }}>
@@ -174,7 +187,7 @@ export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#2a4a6a', fontSize: 11, fontFamily: "'Rajdhani', sans-serif", letterSpacing: 1,
           }}>
-            ✓ 暂无告警信息
+            ✓ 暂无{filter === 'ALERT' ? '告警' : '信息'}记录
           </div>
         ) : (
           filtered.map(alert => {
@@ -221,7 +234,7 @@ export function AlertPanel({ alerts, onClear }: AlertPanelProps) {
                 <span style={{
                   color: s.color, fontSize: 9,
                   fontFamily: "'Share Tech Mono', monospace",
-                  minWidth: 120, flexShrink: 0,
+                  minWidth: 140, flexShrink: 0,
                   opacity: 0.85,
                 }}>
                   [{alert.source}]

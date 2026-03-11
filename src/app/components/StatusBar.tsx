@@ -61,7 +61,7 @@ export function StatusBar({
         </div>
         <div>
           <div style={{ color: '#00d4ff', fontSize: 13, letterSpacing: 2, lineHeight: 1.2, fontWeight: 700 }}>
-            全链路网络拓扑可视化平台
+            网络拓扑图
           </div>
           <div style={{ color: '#4a7fa5', fontSize: 10, letterSpacing: 1, lineHeight: 1 }}>
             INDUSTRIAL NETWORK TOPOLOGY MONITORING SYSTEM v2.4.1
