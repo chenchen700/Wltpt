@@ -377,6 +377,14 @@ export function TopologyMap({
 
   if (!edgeBoxes || !cameraStates || !algorithmStates) return null;
 
+  // ── Smooth cubic-bezier path helper ──────────────────────────────────────
+  // Control points sit at the vertical midpoint so every line leaves/arrives
+  // perfectly vertical, producing a smooth S-curve regardless of Δx.
+  const cb = (sx: number, sy: number, ex: number, ey: number) => {
+    const my = (sy + ey) / 2;
+    return `M${sx},${sy} C${sx},${my} ${ex},${my} ${ex},${ey}`;
+  };
+
   return (
     <div style={{
       width: '100%', height: '100%',
@@ -484,12 +492,12 @@ export function TopologyMap({
           const edgeBoxIndex = edgeBoxes.findIndex(box => box.id === cam.edgeBoxId);
           if (edgeBoxIndex === -1) return null;
           const edgePos = getEdgeBoxPosition(edgeBoxIndex);
-          const pathD = `M${camPos.x},${camPos.y + 12} L${camPos.x},${camPos.y + 35} Q${camPos.x},${camPos.y + 65} ${edgePos.x + 60},${edgePos.y - 18} L${edgePos.x + 60},${edgePos.y}`;
+          const pathD = cb(camPos.x, camPos.y + 14, edgePos.x + 60, edgePos.y);
           return (
             <g key={`cam-edge-${cam.id}`}>
               <path
                 d={pathD}
-                fill="none" stroke="#00b4d8" strokeWidth="0.7" opacity="0.28"
+                fill="none" stroke="#00b4d8" strokeWidth="0.8" opacity="0.3"
                 markerEnd="url(#arrow-cyan)" />
               {i % 3 === 0 && (
                 <circle r="2" fill="#00d4ff" opacity="0.8">
@@ -509,8 +517,8 @@ export function TopologyMap({
         {/* 2. Edge Boxes → Edge Management (设备心跳上报) */}
         {edgeBoxes.map((box, i) => {
           const edgePos = getEdgeBoxPosition(i);
-          const mgmtCenterX = EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2;
-          const pathD = `M${edgePos.x + 60},${edgePos.y + 100} Q${edgePos.x + 60},${edgePos.y + 155} ${mgmtCenterX},${EDGE_MGMT_POS.y}`;
+          const mgmtCX = EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2;
+          const pathD = cb(edgePos.x + 60, edgePos.y + 100, mgmtCX, EDGE_MGMT_POS.y);
           return (
             <g key={`edge-mgmt-${box.id}`}>
               <path
@@ -535,13 +543,14 @@ export function TopologyMap({
         {/* 3. Algorithm Models → Edge Management (算法模型实时心跳上报) */}
         {edgeBoxes.slice(0, 3).map((box, i) => {
           const edgePos = getEdgeBoxPosition(i);
-          const mgmtCenterX = EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2;
+          const mgmtCX = EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2;
+          const pathD = cb(edgePos.x + 60, edgePos.y + 90, mgmtCX - 18, EDGE_MGMT_POS.y);
           return (
             <path
               key={`algo-mgmt-${box.id}`}
-              d={`M${edgePos.x + 60},${edgePos.y + 85} Q${edgePos.x + 60},${edgePos.y + 145} ${mgmtCenterX - 30},${EDGE_MGMT_POS.y}`}
+              d={pathD}
               fill="none" stroke="#8b5cf6" strokeWidth="1" opacity="0.4"
-              strokeDasharray="4 3"
+              strokeDasharray="5 3"
               markerEnd="url(#arrow-purple)" />
           );
         })}
@@ -554,8 +563,8 @@ export function TopologyMap({
         {/* 4. Algorithm Models → DCS (实时推理结果推送) */}
         {edgeBoxes.slice(3, 6).map((box, i) => {
           const edgePos = getEdgeBoxPosition(i + 3);
-          const dcsCenterX = DCS_POS.x + DCS_POS.w / 2;
-          const pathD = `M${edgePos.x + 60},${edgePos.y + 85} Q${edgePos.x + 60},${edgePos.y + 145} ${dcsCenterX + 30},${DCS_POS.y}`;
+          const dcsCX = DCS_POS.x + DCS_POS.w / 2;
+          const pathD = cb(edgePos.x + 60, edgePos.y + 90, dcsCX + 18, DCS_POS.y);
           return (
             <g key={`algo-dcs-${box.id}`}>
               <path
@@ -579,7 +588,10 @@ export function TopologyMap({
 
         {/* 5. DCS → Virtual Platform (同步算法推理结果) */}
         {(() => {
-          const pathD = `M${DCS_POS.x + DCS_POS.w / 2},${DCS_POS.y + DCS_POS.h} L${DCS_POS.x + DCS_POS.w / 2},${DCS_POS.y + DCS_POS.h + 35} Q${DCS_POS.x + DCS_POS.w / 2},${DCS_POS.y + DCS_POS.h + 55} ${VIRTUAL_POS.x + VIRTUAL_POS.w / 2 + 60},${VIRTUAL_POS.y - 18} L${VIRTUAL_POS.x + VIRTUAL_POS.w / 2 + 60},${VIRTUAL_POS.y}`;
+          const pathD = cb(
+            DCS_POS.x + DCS_POS.w / 2, DCS_POS.y + DCS_POS.h,
+            VIRTUAL_POS.x + VIRTUAL_POS.w / 2 + 52, VIRTUAL_POS.y
+          );
           return (
             <g>
               <path d={pathD}
@@ -602,7 +614,10 @@ export function TopologyMap({
 
         {/* 6. Edge Management → Virtual Platform (同步设备状态+算法模型状态) */}
         {(() => {
-          const pathD = `M${EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2},${EDGE_MGMT_POS.y + EDGE_MGMT_POS.h} L${EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2},${EDGE_MGMT_POS.y + EDGE_MGMT_POS.h + 35} Q${EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2},${EDGE_MGMT_POS.y + EDGE_MGMT_POS.h + 55} ${VIRTUAL_POS.x + VIRTUAL_POS.w / 2 - 60},${VIRTUAL_POS.y - 18} L${VIRTUAL_POS.x + VIRTUAL_POS.w / 2 - 60},${VIRTUAL_POS.y}`;
+          const pathD = cb(
+            EDGE_MGMT_POS.x + EDGE_MGMT_POS.w / 2, EDGE_MGMT_POS.y + EDGE_MGMT_POS.h,
+            VIRTUAL_POS.x + VIRTUAL_POS.w / 2 - 52, VIRTUAL_POS.y
+          );
           return (
             <g>
               <path d={pathD}
