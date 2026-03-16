@@ -337,7 +337,7 @@ export default function App() {
       width: '100vw', height: '100vh',
       display: 'flex', flexDirection: 'column',
       overflow: 'hidden',
-      background: '#040c18',
+      background: '#071828',
       fontFamily: "'Rajdhani', sans-serif",
     }}>
       {/* Top Status Bar */}
@@ -348,7 +348,6 @@ export default function App() {
         activeCameras={activeCameras}
         totalCameras={cameras.length}
         alertCount={alertCount}
-        networkLoad={Math.round(networkLoad)}
       />
 
       {/* Main Content */}
@@ -378,14 +377,14 @@ export default function App() {
           }}>
             {/* Camera status */}
             <LegendCard
-              icon="◎" iconColor="#00b4d8"
+              icon="◎" iconColor="#00d4ff"
               label="工业相机"
               value={`${activeCameras}/${cameras.length} 在线`}
               valueColor={activeCameras === cameras.length ? '#00e676' : '#ffca28'}
             />
             {/* Edge server status */}
             <LegendCard
-              icon="▣" iconColor="#2d7dd2"
+              icon="▣" iconColor="#4d9de0"
               label="边缘算力服务器"
               value={`${onlineEdgeBoxes}/${edgeBoxes.length} 在线`}
               valueColor={onlineEdgeBoxes === edgeBoxes.length ? '#00e676' : '#ffca28'}
@@ -399,12 +398,12 @@ export default function App() {
             />
             {/* Edge management status */}
             <LegendCard
-              icon="⊙" iconColor="#2d7dd2"
+              icon="⊙" iconColor="#4d9de0"
               label="边缘管理后台"
               value={systemStates.edgeManagement.status === 'normal' ? '正常' : '异常'}
               valueColor={STATUS_COLOR[systemStates.edgeManagement.status]}
               blink={systemStates.edgeManagement.status !== 'normal'}
-              borderColor={systemStates.edgeManagement.status !== 'normal' ? STATUS_COLOR[systemStates.edgeManagement.status] + '55' : '#1a3a5c'}
+              borderColor={systemStates.edgeManagement.status !== 'normal' ? STATUS_COLOR[systemStates.edgeManagement.status] + '55' : '#1e4d6e'}
             />
           </div>
 
@@ -430,7 +429,7 @@ export default function App() {
 // ─── Legend Card Component ───────────────────────────────────────────────────────
 
 function LegendCard({
-  icon, iconColor, label, value, valueColor, blink = false, borderColor = '#1a3a5c',
+  icon, iconColor, label, value, valueColor, blink = false, borderColor = '#1E5A80',
 }: {
   icon: string; iconColor: string; label: string; value: string;
   valueColor: string; blink?: boolean; borderColor?: string;
@@ -439,13 +438,13 @@ function LegendCard({
     <div style={{
       display: 'flex', alignItems: 'center', gap: 7,
       padding: '3px 8px',
-      background: 'rgba(4,12,24,0.8)',
+      background: 'rgba(8,24,40,0.88)',
       border: `1px solid ${borderColor}`,
       borderRadius: 3,
       minWidth: 200,
     }}>
       <span style={{ color: iconColor, fontSize: 10 }}>{icon}</span>
-      <span style={{ color: '#7b9bc0', fontSize: 9, flex: 1, fontFamily: "'Rajdhani', sans-serif" }}>
+      <span style={{ color: '#7FC3DF', fontSize: 9, flex: 1, fontFamily: "'Rajdhani', sans-serif" }}>
         {label}
       </span>
       <span style={{
